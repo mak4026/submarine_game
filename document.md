@@ -123,10 +123,10 @@ resultのattackedは行動プレイヤーは過去形、相手プレイヤーは
 ```json
 {
     "outcome": true,
-    "result":
+    "result": {
         "attacked": {
             "position": [2,3],
-            "hit": "s",
+            "hit": "s"
         }
     },
     "condition": {
@@ -225,7 +225,7 @@ resultのattackedは行動プレイヤーは過去形、相手プレイヤーは
 {
     "result": {
         "moved": {
-            "ship": "w"
+            "ship": "w",
             "distance": [0,-2],
         }
     },
