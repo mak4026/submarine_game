@@ -74,23 +74,23 @@
 
 例：
 ```json
-{"type": "hit", "ships": ["w"]} 
+{"result": "hit", "ships": ["w"]} 
 ```
 敵の戦艦に攻撃がヒットした。
 ```json
-{"type": "near", "ships": ["w", "c"]} 
+{"result": "near", "ships": ["w", "c"]} 
 ```
 攻撃した結果、敵の戦艦と巡洋艦の隣接マスだった。
 ```json
-{"type": "win"} 
+{"result": "win"} 
 ```
 攻撃した結果敵艦が全て沈んで勝利した。
 ```json
-{"type": "lose"} 
+{"result": "lose"} 
 ```
 移動場所が不正だったので敗北した。
 ```json
-{"type": "none"} 
+{"result": "none"} 
 ```
 移動しただけだったので特に何も起こらなかった。
 
@@ -104,22 +104,22 @@
 |distance|座標の差分（配列）|移動した位置の差を取る|[0,-1]など。move以外では省略するか特別な値を取らせる？|
 例：
 ```json
-{"type": "hit", "ships": ["w"]} 
+{"result": "hit", "ships": ["w"]} 
 ```
 自分の戦艦に攻撃がヒットした。
 ```json
-{"type": "near", "ships": ["w", "c"]} 
+{"result": "near", "ships": ["w", "c"]} 
 ```
 自分の戦艦と巡洋艦の隣接マスに攻撃された。
 ```json
-{"type": "move", "ships": ["s"], "distance": [0, -1]}
+{"result": "move", "ships": ["s"], "distance": [0, -1]}
 ```
 相手が潜水艦を上に1マス動かした。
 ```json
-{"type": "win"} 
+{"result": "win"} 
 ```
  相手が不正行動をとったため勝利した。
 ```json
-{"type": "lose"} 
+{"result": "lose"} 
 ```
 自分の艦が全て沈んだので敗北した。
