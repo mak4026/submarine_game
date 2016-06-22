@@ -92,30 +92,29 @@ resultのattackedは行動プレイヤーは過去形、相手プレイヤーは
     "condition": {
         "me": {
             "w": {
-                hp: 2,
-                position: [0,0]
+                "hp": 2,
+                "position": [0,0]
             },
             "c": {
-                hp: 2,
-                position: [0,1]
+                "hp": 2,
+                "position": [0,1]
             },
             "s": {
-                hp: 1,
-                position: [1,1]
+                "hp": 1,
+                "position": [1,1]
             }
         },
         "enemy": {
             "w": {
-                hp: 2
+                "hp": 2
             },
             "c": {
-                hp: 2
+                "hp": 2
             },
             "s": {
-                hp: 1
+                "hp": 1
             }
         }
-
     }
 }
 ```
@@ -133,30 +132,29 @@ resultのattackedは行動プレイヤーは過去形、相手プレイヤーは
     "condition": {
         "me": {
             "w": {
-                hp: 1,
-                position: [0,0]
+                "hp": 1,
+                "position": [0,0]
             },
             "c": {
-                hp: 1,
-                position: [0,1]
+                "hp": 1,
+                "position": [0,1]
             },
             "s": {
-                hp: 1,
-                position: [1,1]
+                "hp": 1,
+                "position": [1,1]
             }
         },
         "enemy": {
             "w": {
-                hp: 0
+                "hp": 0
             },
             "c": {
-                hp: 0
+                "hp": 0
             },
             "s": {
-                hp: 0
+                "hp": 0
             }
         }
-
     }
 }
 ```
@@ -196,30 +194,29 @@ resultのattackedは行動プレイヤーは過去形、相手プレイヤーは
     "condition": {
         "me": {
             "w": {
-                hp: 2,
-                position: [0,0]
+                "hp": 2,
+                "position": [0,0]
             },
             "c": {
-                hp: 2,
-                position: [0,1]
+                "hp": 2,
+                "position": [0,1]
             },
             "s": {
-                hp: 1,
-                position: [1,1]
+                "hp": 1,
+                "position": [1,1]
             }
         },
         "enemy": {
             "w": {
-                hp: 3
+                "hp": 3
             },
             "c": {
-                hp: 2
+                "hp": 2
             },
             "s": {
-                hp: 1
+                "hp": 1
             }
         }
-
     }
 }
 ```
@@ -235,30 +232,29 @@ resultのattackedは行動プレイヤーは過去形、相手プレイヤーは
     "condition": {
         "me": {
             "w": {
-                hp: 2,
-                position: [0,0]
+                "hp": 2,
+                "position": [0,0]
             },
             "c": {
-                hp: 2,
-                position: [0,1]
+                "hp": 2,
+                "position": [0,1]
             },
             "s": {
-                hp: 1,
-                position: [1,1]
+                "hp": 1,
+                "position": [1,1]
             }
         },
         "enemy": {
             "w": {
-                hp: 3
+                "hp": 3
             },
             "c": {
-                hp: 2
+                "hp": 2
             },
             "s": {
-                hp: 1
+                "hp": 1
             }
         }
-
     }
 }
 ```
@@ -269,30 +265,29 @@ resultのattackedは行動プレイヤーは過去形、相手プレイヤーは
     "condition": {
         "me": {
             "w": {
-                hp: 2,
-                position: [0,0]
+                "hp": 2,
+                "position": [0,0]
             },
             "c": {
-                hp: 2,
-                position: [0,1]
+                "hp": 2,
+                "position": [0,1]
             },
             "s": {
-                hp: 1,
-                position: [1,1]
+                "hp": 1,
+                "position": [1,1]
             }
         },
         "enemy": {
             "w": {
-                hp: 3
+                "hp": 3
             },
             "c": {
-                hp: 2
+                "hp": 2
             },
             "s": {
-                hp: 1
+                "hp": 1
             }
         }
-
     }
 }
 ```
