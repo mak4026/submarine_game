@@ -63,6 +63,7 @@ class T_Server < Test::Unit::TestCase
                    "hit" => "s",
                    "near" => ["w", "c"]
                  }, c.attacked([1,0]))
+    puts c.ships
     assert_equal(false, c.ships.has_key?("s"))
   end
 
@@ -183,7 +184,7 @@ class T_Server < Test::Unit::TestCase
                          }
                        }
                      }
-                   },
+                   }.to_json,
                    {
                      "result" => {
                        "attacked" => {
@@ -191,11 +192,25 @@ class T_Server < Test::Unit::TestCase
                          "hit" => "w",
                          "near" => ["c", "s"]
                        }
-                     }.to_json,
+                     },
                      "condition" => {
                        "me" => {
                          "w" => {
-                           "hp" => 2
+                           "hp" => 2,
+                           "position" =>[1,1]
+                         },
+                         "c" => {
+                           "hp" => 2,
+                           "position" => [1,0]
+                         },
+                         "s" => {
+                           "hp" => 1,
+                           "position" => [0,1]
+                         }
+                       },
+                       "enemy" => {
+                         "w" => {
+                           "hp" => 3
                          },
                          "c" => {
                            "hp" => 2
@@ -203,26 +218,15 @@ class T_Server < Test::Unit::TestCase
                          "s" => {
                            "hp" => 1
                          }
-                       },
-                       "enemy" => {
-                         "w" => {
-                           "hp" => 3,
-                           "position" => [0,0]
-                         },
-                         "c" => {
-                           "hp" => 2,
-                           "position" => [0,1]
-                         },
-                         "s" => {
-                           "hp" => 1,
-                           "position" => [1,0]
-                         }
                        }
                      }
                    }.to_json
                  ], s.action(0, atk_t))
      assert_equal([
                     {
+                      "result" => {
+                        "attacked" => false
+                      },
                       "outcome" => false,
                       "condition" => {
                         "me" => {
@@ -241,7 +245,7 @@ class T_Server < Test::Unit::TestCase
                         },
                         "enemy" => {
                           "w" => {
-                            "hp" => 3
+                            "hp" => 2
                           },
                           "c" => {
                             "hp" => 2
@@ -253,9 +257,26 @@ class T_Server < Test::Unit::TestCase
                       }
                     }.to_json,
                     {
+                      "result" => {
+                        "attacked" => false
+                      },
                       "outcome" => true,
                       "condition" => {
                         "me" => {
+                          "w" => {
+                            "hp" => 2,
+                            "position" =>[1,1]
+                          },
+                          "c" => {
+                            "hp" => 2,
+                            "position" => [1,0]
+                          },
+                          "s" => {
+                            "hp" => 1,
+                            "position" => [0,1]
+                          }
+                        },
+                        "enemy" => {
                           "w" => {
                             "hp" => 3
                           },
@@ -264,20 +285,6 @@ class T_Server < Test::Unit::TestCase
                           },
                           "s" => {
                             "hp" => 1
-                          }
-                        },
-                        "enemy" => {
-                          "w" => {
-                            "hp" => 3,
-                            "position" => [0,0]
-                          },
-                          "c" => {
-                            "hp" => 2,
-                            "position" => [0,1]
-                          },
-                          "s" => {
-                            "hp" => 1,
-                            "position" => [1,0]
                           }
                         }
                       }
@@ -289,7 +296,7 @@ class T_Server < Test::Unit::TestCase
                          "me" => {
                            "w" => {
                              "hp" => 3,
-                             "position" => [0,0]
+                             "position" => [0,2]
                            },
                            "c" => {
                              "hp" => 2,
@@ -302,7 +309,7 @@ class T_Server < Test::Unit::TestCase
                          },
                          "enemy" => {
                            "w" => {
-                             "hp" => 3
+                             "hp" => 2
                            },
                            "c" => {
                              "hp" => 2
@@ -323,6 +330,20 @@ class T_Server < Test::Unit::TestCase
                        "condition" => {
                          "me" => {
                            "w" => {
+                             "hp" => 2,
+                             "position" =>[1,1]
+                           },
+                           "c" => {
+                             "hp" => 2,
+                             "position" => [1,0]
+                           },
+                           "s" => {
+                             "hp" => 1,
+                             "position" => [0,1]
+                           }
+                         },
+                         "enemy" => {
+                           "w" => {
                              "hp" => 3
                            },
                            "c" => {
@@ -331,24 +352,10 @@ class T_Server < Test::Unit::TestCase
                            "s" => {
                              "hp" => 1
                            }
-                         },
-                         "enemy" => {
-                           "w" => {
-                             "hp" => 3,
-                             "position" => [0,0]
-                           },
-                           "c" => {
-                             "hp" => 2,
-                             "position" => [0,1]
-                           },
-                           "s" => {
-                             "hp" => 1,
-                             "position" => [1,0]
-                           }
                          }
                        }
                      }.to_json
-                   ], s.action(0, mv_t))
+                   ], s.action(0, mov_t))
       assert_equal([
                      {
                        "outcome" => false,  
@@ -356,7 +363,7 @@ class T_Server < Test::Unit::TestCase
                          "me" => {
                            "w" => {
                              "hp" => 3,
-                             "position" => [0,0]
+                             "position" => [0,2]
                            },
                            "c" => {
                              "hp" => 2,
@@ -369,7 +376,7 @@ class T_Server < Test::Unit::TestCase
                          },
                          "enemy" => {
                            "w" => {
-                             "hp" => 3
+                             "hp" => 2
                            },
                            "c" => {
                              "hp" => 2
@@ -381,9 +388,26 @@ class T_Server < Test::Unit::TestCase
                        }
                      }.to_json,
                      {
+                       "result" => {
+                         "moved" => false
+                       },
                        "outcome" => true,
                        "condition" => {
                          "me" => {
+                           "w" => {
+                             "hp" => 2,
+                             "position" =>[1,1]
+                           },
+                           "c" => {
+                             "hp" => 2,
+                             "position" => [1,0]
+                           },
+                           "s" => {
+                             "hp" => 1,
+                             "position" => [0,1]
+                           }
+                         },
+                         "enemy" => {
                            "w" => {
                              "hp" => 3
                            },
@@ -393,23 +417,9 @@ class T_Server < Test::Unit::TestCase
                            "s" => {
                              "hp" => 1
                            }
-                         },
-                         "enemy" => {
-                           "w" => {
-                             "hp" => 3,
-                             "position" => [0,0]
-                           },
-                           "c" => {
-                             "hp" => 2,
-                             "position" => [0,1]
-                           },
-                           "s" => {
-                             "hp" => 1,
-                             "position" => [1,0]
-                           }
                          }
                        }
                      }.to_json
-                   ], s.action(0, mv_f))
+                   ], s.action(0, mov_f))
   end
 end

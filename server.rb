@@ -64,7 +64,7 @@ class Client
       info["hit"] = ship.type
 
       if ship.hp == 0
-        @ships.delete(ship)
+        @ships.delete(ship.type)
       end
     end
     
@@ -98,7 +98,7 @@ class Client
   def near(to)
     near = []
     @ships.values.each do |ship|
-      if (ship.position[0] - to[0]).abs == 1 || (ship.position[1] - to[1]).abs == 1
+      if ship.position != to && (ship.position[0] - to[0]).abs <= 1 && (ship.position[1] - to[1]).abs <= 1
         near.push(ship)
       end
     end
