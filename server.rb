@@ -1,3 +1,4 @@
+# coding: utf-8
 require 'json'
 
 class Ship
@@ -40,7 +41,7 @@ class Client
   def move(type, to)
     ship = @ships[type]
     
-    if !in_field?(to) || !reachable?(ship, to) || !overlap(to).nil?
+    if ship.nil? || !in_field?(to) || !reachable?(ship, to) || !overlap(to).nil?
       return false
     end
 
@@ -103,7 +104,8 @@ class Client
     end
     near
   end
-  
+
+  # TODO: 以下二つのメソッドはクラスメソッドに書き換えたい
   def in_field?(position)
     position[0] < FIELD_SIZE && position[1] < FIELD_SIZE
   end
@@ -156,6 +158,6 @@ class Server
       "enemy" => active.condition(false)
     }
 
-    info
+    [info[c].to_json, info[1-c].to_json]
   end
 end
