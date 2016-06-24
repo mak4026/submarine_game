@@ -501,6 +501,74 @@ class T_Server < Test::Unit::TestCase
                        }
                      }.to_json
                    ], s.action(0, mov_f))
+      s.action(0, atk_t)
+      s.action(0, atk_t)
+      s.action(0, {
+                 "attack" => {
+                   "to" => [1,0]
+                 }
+               }.to_json)
+      s.action(0, {
+                 "attack" => {
+                   "to" => [1,0]
+                 }
+               }.to_json)
+      assert_equal([{
+                      "result" => {
+                        "attacked" => {
+                          "position" => [0,1],
+                          "hit" => "s",
+                          "near" => []
+                        }
+                      },
+                      "outcome" => true,
+                      "condition" => {
+                        "me" => {
+                          "w" => {
+                            "hp" => 3,
+                            "position" =>[0,2]
+                          },
+                          "c" => {
+                            "hp" => 2,
+                            "position" => [0,1]
+                          },
+                          "s" => {
+                            "hp" => 1,
+                            "position" => [1,0]
+                          }
+                        },
+                        "enemy" => {}
+                      }
+                    }.to_json,
+                    {
+                      "result" => {
+                        "attacked" => {
+                          "position" => [0,1],
+                          "hit" => "s",
+                          "near" => []
+                        }
+                      },
+                      "outcome" => false,
+                      "condition" => {
+                        "me" => {},
+                        "enemy" => {
+                          "w" => {
+                            "hp" => 3
+                          },
+                          "c" => {
+                            "hp" => 2
+                          },
+                          "s" => {
+                            "hp" => 1
+                          }
+                        }
+                      }
+                    }.to_json],
+                   s.action(0, {
+                              "attack" => {
+                                "to" => [0,1]
+                              }
+                            }.to_json))
   end
 
   def test_serever_condition
