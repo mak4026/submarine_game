@@ -25,6 +25,21 @@ class T_Server < Test::Unit::TestCase
     assert_equal(w.hp, 2)
   end
 
+  def test_ship_reachable?
+    w = Ship.new("w", [0,0])
+    assert_equal(true, w.reachable?([0,4]))
+    assert_equal(true, w.reachable?([4,0]))
+    assert_equal(false, w.reachable?([1,1]))
+  end
+
+  def test_ship_attackable?
+    w = Ship.new("w", [2,2])
+    assert_equal(true, w.attackable?([2, 3]))
+    assert_equal(true, w.attackable?([3, 1]))
+    assert_equal(true, w.attackable?([3, 3]))
+    assert_equal(false, w.attackable?([2, 0]))
+  end
+  
   def test_client_new
     assert_raise do
       Client.new({"w" => [0,0], "c" => [0,1], "s" => [0,0]})
@@ -63,7 +78,6 @@ class T_Server < Test::Unit::TestCase
                    "hit" => "s",
                    "near" => ["w", "c"]
                  }, c.attacked([1,0]))
-    puts c.ships
     assert_equal(false, c.ships.has_key?("s"))
   end
 
@@ -109,17 +123,9 @@ class T_Server < Test::Unit::TestCase
   end
 
   def test_client_in_field?
-    c = Client.new({"w" => [0,0], "c" => [0,1], "s" => [1,0]})
-    assert_equal(true, c.send(:in_field?, [0,0]))
-    assert_equal(false, c.send(:in_field?, [5,5]))
-    assert_equal(false, c.send(:in_field?, [-1, 0]))
-  end
-
-  def test_client_reachable?
-    c = Client.new({"w" => [0,0], "c" => [0,1], "s" => [1,0]})
-    assert_equal(true, c.send(:reachable?, c.ships["w"], [0,4]))
-    assert_equal(true, c.send(:reachable?, c.ships["w"], [4,0]))
-    assert_equal(false, c.send(:reachable?, c.ships["w"], [1,1]))
+    assert_equal(true, Client.send(:in_field?, [0,0]))
+    assert_equal(false, Client.send(:in_field?, [5,5]))
+    assert_equal(false, Client.send(:in_field?, [-1, 0]))
   end
 
   def test_server_action
@@ -131,7 +137,12 @@ class T_Server < Test::Unit::TestCase
         "to" => [1,1]
       }
     }.to_json
-    atk_f = {
+    atk_f1 = {
+      "attack" => {
+        "to" => [2,2]
+      }
+    }.to_json
+    atk_f2 = {
       "attack" => {
         "to" => [5,5]
       }
@@ -290,7 +301,75 @@ class T_Server < Test::Unit::TestCase
                         }
                       }
                     }.to_json
-                  ], s.action(0, atk_f))
+                  ], s.action(0, atk_f1))
+     assert_equal([
+                    {
+                      "result" => {
+                        "attacked" => false
+                      },
+                      "outcome" => false,
+                      "condition" => {
+                        "me" => {
+                          "w" => {
+                            "hp" => 3,
+                            "position" => [0,0]
+                          },
+                          "c" => {
+                            "hp" => 2,
+                            "position" => [0,1]
+                          },
+                          "s" => {
+                            "hp" => 1,
+                            "position" => [1,0]
+                          }
+                        },
+                        "enemy" => {
+                          "w" => {
+                            "hp" => 2
+                          },
+                          "c" => {
+                            "hp" => 2
+                          },
+                          "s" => {
+                            "hp" => 1
+                          }
+                        }
+                      }
+                    }.to_json,
+                    {
+                      "result" => {
+                        "attacked" => false
+                      },
+                      "outcome" => true,
+                      "condition" => {
+                        "me" => {
+                          "w" => {
+                            "hp" => 2,
+                            "position" =>[1,1]
+                          },
+                          "c" => {
+                            "hp" => 2,
+                            "position" => [1,0]
+                          },
+                          "s" => {
+                            "hp" => 1,
+                            "position" => [0,1]
+                          }
+                        },
+                        "enemy" => {
+                          "w" => {
+                            "hp" => 3
+                          },
+                          "c" => {
+                            "hp" => 2
+                          },
+                          "s" => {
+                            "hp" => 1
+                          }
+                        }
+                      }
+                    }.to_json
+                  ], s.action(0, atk_f2))
       assert_equal([
                      {
                        "condition" => {
@@ -423,4 +502,40 @@ class T_Server < Test::Unit::TestCase
                      }.to_json
                    ], s.action(0, mov_f))
   end
+
+  def test_serever_condition
+    json1 = {"w" => [0,0], "c" => [0,1], "s" => [1,0]}.to_json
+    json2 = {"w" => [1,1], "c" => [1,0], "s" => [0,1]}.to_json
+    s = Server.new(json1, json2)
+    assert_equal({
+                   "condition" => {
+                     "me" => {
+                       "w" => {
+                         "hp" => 3,
+                         "position" => [0,0]
+                       },
+                       "c" => {
+                         "hp" => 2,
+                         "position" => [0,1]
+                       },
+                       "s" => {
+                         "hp" => 1,
+                         "position" => [1,0]
+                       }
+                     },
+                     "enemy" => {
+                       "w" => {
+                         "hp" => 3
+                       },
+                       "c" => {
+                         "hp" => 2
+                       },
+                       "s" => {
+                         "hp" => 1
+                       }
+                     }
+                   }
+                 }, s.send(:condition, 0))
+  end
+                 
 end
