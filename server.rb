@@ -22,6 +22,14 @@ class Ship
   def damaged(d)
     @hp -= d
   end
+
+  def reachable?(to)
+    @position[0] == to[0] || @position[1] == to[1]
+  end
+
+  def attackable?(to)
+    (to[0] - @position[0]).abs <= 1 && (to[1] - @position[1]).abs <= 1
+  end
 end
 
 class Client
@@ -41,7 +49,7 @@ class Client
   def move(type, to)
     ship = @ships[type]
     
-    if ship.nil? || !in_field?(to) || !reachable?(ship, to) || !overlap(to).nil?
+    if ship.nil? || !Client.in_field?(to) || !ship.reachable?(to) || !overlap(to).nil?
       return false
     end
 
@@ -51,7 +59,7 @@ class Client
   end
 
   def attacked(to)
-    if !in_field?(to)
+    if !Client.in_field?(to)
       return false
     end
     
@@ -84,6 +92,10 @@ class Client
     cond
   end
 
+  def attackable?(to)
+    Client.in_field?(to) && @ships.values.any?{|ship| ship.attackable?(to)}
+  end
+
   private
     
   def overlap(position)
@@ -98,21 +110,16 @@ class Client
   def near(to)
     near = []
     @ships.values.each do |ship|
-      if ship.position != to && (ship.position[0] - to[0]).abs <= 1 && (ship.position[1] - to[1]).abs <= 1
+      if ship.position != to && (ship.position[0] - to[0]).abs <= 1 &&(ship.position[1] - to[1]).abs <= 1
         near.push(ship)
       end
     end
     near
   end
 
-  # TODO: 以下二つのメソッドはクラスメソッドに書き換えたい
-  def in_field?(position)
+  def self.in_field?(position)
     position[0] < FIELD_SIZE && position[1] < FIELD_SIZE &&
       position[0] >= 0 && position[1] >= 0
-  end
-
-  def reachable?(ship, to)
-    ship.position[0] == to[0] || ship.position[1] == to[1]
   end
 end 
 
@@ -125,6 +132,10 @@ class Server
     @clients[1] = Client.new(JSON.parse(json2))
   end
 
+  def initial_condition(c)
+    [condition(c).to_json, condition(1-c).to_json]
+  end
+
   def action(c, json)
     info = Array.new(2){{}}
     active = @clients[c]
@@ -132,7 +143,14 @@ class Server
     act = JSON.parse(json)
 
     if act.has_key?("attack")
-      result = passive.attacked(act["attack"]["to"])
+      to = act["attack"]["to"]
+      
+      if !active.attackable?(to)
+        result = false
+      else
+        result = passive.attacked(to)
+      end
+      
       info[c]["result"] = {"attacked" => result}
       info[1-c]["result"] = {"attacked" => result}
 
@@ -140,6 +158,7 @@ class Server
         info[c]["outcome"] = true
         info[1-c]["outcome"] = false
       end
+      
     elsif act.has_key?("move")
       result = active.move(act["move"]["ship"], act["move"]["to"])
       info[1-c]["result"] = {"moved" => result}
@@ -150,15 +169,20 @@ class Server
       info[1-c]["outcome"] = true
     end
 
-    info[c]["condition"] = {
-      "me" => active.condition(true),
-      "enemy" => passive.condition(false)
-    }
-    info[1-c]["condition"] = {
-      "me" => passive.condition(true),
-      "enemy" => active.condition(false)
-    }
+    info[c] = info[c].merge(condition(c))
+    info[1-c] = info[1-c].merge(condition(1-c))
 
     [info[c].to_json, info[1-c].to_json]
+  end
+
+  private
+
+  def condition(c)
+    {
+      "condition" => {
+        "me" => @clients[c].condition(true),
+        "enemy" => @clients[1-c].condition(false)
+      }
+    }
   end
 end
