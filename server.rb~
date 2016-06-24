@@ -188,8 +188,7 @@ end
 
 class PlayerShip
   MAX_HPS = {"w" => 3, "c" => 2, "s" => 1}
-  attr :type
-  attr_accessor :position, :hp
+  attr :type, :position, :hp
 
   def initialize(type, position)
     if !MAX_HPS.has_key?(type)
@@ -257,6 +256,12 @@ class Player
       
   def move(type, to)
     ship = @ships[type]
+    
+    if ship.nil? || !Player.in_field?(to) || !ship.reachable?(to) || !overlap(to).nil?
+      raise PositionError, "can not move there"
+    end
+
+    distance = [to[0] - ship.position[0], to[1] - ship.position[1]]
     ship.moved(to)
     {
       "move" => {
@@ -266,7 +271,11 @@ class Player
     }
   end
 
-  def attack(to)
+  def attack(type, to)
+    if !attacakble?(to)
+      raise PositionError, "can not attack there"
+    end
+
     {
       "attack" => {
         "to" => to
@@ -329,95 +338,21 @@ class RandomPlayer < Player
     act = ["move", "attack"].sample
 
     if act == "move"
-      ship = @ships.values.sample
+      ship = @ships.sample
       to = @field.sample
-      while !ship.reachable?(to) || !overlap(to).nil?
+      while !ship.reachable(to)
         to = @field.sample
       end
 
-      move(ship.type, to).to_json
+      move(ship.type, to)
     elsif act == "attack"
       to = @field.sample
-      while !attackable?(to)
+      while !attackable(to)
         to = @field.sample
       end
 
-      attack(to).to_json
+      attack(to)
     end
   end
 end
 
-def one_action(active, passive, c, server)
-  act = active.action
-  results = server.action(c, act)
-  report_result(results, c)
-  active.update(results[0])
-  passive.update(results[1])
-
-  !JSON.parse(results[0]).has_key?("outcome")
-end
-
-def report_result(results, c)
-  result1 = JSON.parse(results[0])
-  result2 = JSON.parse(results[1])
-
-  if result2["result"].has_key?("moved")
-    if result2["result"]["moved"]
-      puts "player" + (c+1).to_s +  " moved " + result2["result"]["moved"]["ship"] + " by " + result2["result"]["moved"]["distance"].to_s
-    else
-      puts "player " + (c+1).to_s + " faild to move"
-    end
-  else
-    
-    if result2["result"]["attacked"]
-      puts "player" + (c+1).to_s +  " attacked " + result2["result"]["attacked"]["position"].to_s
-
-      if result2["result"]["attacked"].has_key?("hit")
-        puts "hit " + result2["result"]["attacked"]["hit"]
-      end
-      if result2["result"]["attacked"].has_key?("near")
-        puts "near " + result2["result"]["attacked"]["near"].to_s
-      end
-    else
-      puts "player" + (c+1).to_s + " faild to attack"
-    end
-  end
-
-  if c == 0
-    puts "player" + (c+1).to_s +  ": " + result1["condition"]["me"].to_s
-    puts "player" + (2-c).to_s +  ": "  + result2["condition"]["me"].to_s
-  else
-    puts "player" + (2-c).to_s +  ": "  + result2["condition"]["me"].to_s
-    puts "player" + (c+1).to_s +  ": " + result1["condition"]["me"].to_s
-  end
-  puts ""
-end
-
-def play_game(player1, player2)
-  cond1 = player1.initial_condition
-  cond2 = player2.initial_condition
-  server = Server.new(cond1, cond2)
-
-  players = [player1, player2]
-  continue = one_action(player1, player2, 0, server)
-  c = 1
-  i = 0
-  while continue && i < 1000
-    continue = one_action(players[c], players[1-c], c, server)
-    c = 1 - c
-    i += 1
-  end
-
-  if i == 1000
-    puts "time up"
-  else
-    puts "player" + (2-c).to_s + " won"
-  end
-end
-
-if __FILE__ == $0
-  p1 = RandomPlayer.new
-  p2 = RandomPlayer.new
-
-  play_game(p1, p2)
-end
