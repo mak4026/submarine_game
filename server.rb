@@ -107,7 +107,8 @@ class Client
 
   # TODO: 以下二つのメソッドはクラスメソッドに書き換えたい
   def in_field?(position)
-    position[0] < FIELD_SIZE && position[1] < FIELD_SIZE
+    position[0] < FIELD_SIZE && position[1] < FIELD_SIZE &&
+      position[0] >= 0 && position[1] >= 0
   end
 
   def reachable?(ship, to)

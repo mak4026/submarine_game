@@ -112,6 +112,7 @@ class T_Server < Test::Unit::TestCase
     c = Client.new({"w" => [0,0], "c" => [0,1], "s" => [1,0]})
     assert_equal(true, c.send(:in_field?, [0,0]))
     assert_equal(false, c.send(:in_field?, [5,5]))
+    assert_equal(false, c.send(:in_field?, [-1, 0]))
   end
 
   def test_client_reachable?
