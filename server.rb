@@ -1,5 +1,5 @@
-# coding: utf-8
 require 'json'
+require 'socket'
 
 class Ship
   MAX_HPS = {"w" => 3, "c" => 2, "s" => 1}
@@ -186,177 +186,6 @@ class Server
   end
 end  
 
-class PlayerShip
-  MAX_HPS = {"w" => 3, "c" => 2, "s" => 1}
-  attr :type
-  attr_accessor :position, :hp
-
-  def initialize(type, position)
-    if !MAX_HPS.has_key?(type)
-      raise ArgumentError, "invalid type supecified"
-    end
-    
-    @type = type
-    @position = position
-    @hp = MAX_HPS[type]
-  end
-
-  def moved(to)
-    @position = to
-  end
-
-  def damaged(d)
-    @hp -= d
-  end
-
-  def reachable?(to)
-    @position[0] == to[0] || @position[1] == to[1]
-  end
-
-  def attackable?(to)
-    (to[0] - @position[0]).abs <= 1 && (to[1] - @position[1]).abs <= 1
-  end
-end
-
-class Player
-  FIELD_SIZE = 5
-  attr :ships
-  
-  def initialize(positions)
-    @ships = {}
-    positions.each do |type, position|
-      if overlap(position)
-        raise ArgumentError, "given overlapping positions"
-      end
-      @ships[type] = PlayerShip.new(type, position)
-    end
-  end
-
-  def initial_condition
-    cond = {}
-    @ships.values.each do |ship|
-      cond[ship.type] = ship.position
-    end
-    cond.to_json
-  end
-
-  def action
-  end
-
-  def update(json)
-    cond = JSON.parse(json)["condition"]["me"]
-    @ships.keys.each do |type|
-      if !cond.has_key?(type)
-        @ships.delete(type)
-      else
-        @ships[type].hp = cond[type]["hp"]
-        @ships[type].position = cond[type]["position"]
-      end
-    end
-  end
-      
-  def move(type, to)
-    ship = @ships[type]
-    ship.moved(to)
-    {
-      "move" => {
-        "ship" => type,
-        "to" => to
-      }
-    }
-  end
-
-  def attack(to)
-    {
-      "attack" => {
-        "to" => to
-      }
-    }
-  end
-    
-  def attacked(to)
-    ship = overlap(to)
-
-    if !ship.nil?
-      ship.damaged(1)
-
-      if ship.hp == 0
-        @ships.delete(ship.type)
-      end
-    end
-  end
-
-  def attackable?(to)
-    Player.in_field?(to) && @ships.values.any?{|ship| ship.attackable?(to)}
-  end
-
-  private
-    
-  def overlap(position)
-    @ships.values.each do |ship|
-      if ship.position == position
-        return ship
-      end
-    end
-    nil
-  end
-
-  def self.in_field?(position)
-    position[0] < FIELD_SIZE && position[1] < FIELD_SIZE &&
-      position[0] >= 0 && position[1] >= 0
-  end
-end
-
-class RandomPlayer < Player
-  attr :field
-  FIELD_SIZE
-  
-  def initialize
-    @field = []
-    for i in 0...FIELD_SIZE
-      for j in 0...FIELD_SIZE
-        @field.push([i,j])
-      end
-    end
-
-    ps = @field.sample(3)
-    positions = {"w" => ps[0], "c" => ps[1], "s" => ps[2]}
-    super(positions)
-  end
-
-  def action
-    info = {}
-    act = ["move", "attack"].sample
-
-    if act == "move"
-      ship = @ships.values.sample
-      to = @field.sample
-      while !ship.reachable?(to) || !overlap(to).nil?
-        to = @field.sample
-      end
-
-      move(ship.type, to).to_json
-    elsif act == "attack"
-      to = @field.sample
-      while !attackable?(to)
-        to = @field.sample
-      end
-
-      attack(to).to_json
-    end
-  end
-end
-
-def one_action(active, passive, c, server)
-  act = active.action
-  results = server.action(c, act)
-  report_result(results, c)
-  active.update(results[0])
-  passive.update(results[1])
-
-  !JSON.parse(results[0]).has_key?("outcome")
-end
-
 def report_result(results, c)
   result1 = JSON.parse(results[0])
   result2 = JSON.parse(results[1])
@@ -393,31 +222,47 @@ def report_result(results, c)
   puts ""
 end
 
-def play_game(player1, player2)
-  cond1 = player1.initial_condition
-  cond2 = player2.initial_condition
-  server = Server.new(cond1, cond2)
+def one_action(active, passive, c, server)
+  act = active.gets
+  results = server.action(c, act)
+  report_result(results, c)
+  active.puts(results[0])
+  passive.puts(results[1])
 
-  players = [player1, player2]
-  continue = one_action(player1, player2, 0, server)
+  !JSON.parse(results[0]).has_key?("outcome")
+end
+
+def main(port)
+  tcp_server = TCPServer.open(port)
+  sockets = []
+  2.times do
+    sockets.push(tcp_server.accept)
+  end
+  sockets.each do |socket|
+    socket.puts("you are connected. please send me initial state.")
+  end
+
+  server = Server.new(sockets[0].gets, sockets[1].gets)
+  puts "server initialized"
+  sockets[1].gets
+
+  continue = one_action(sockets[0], sockets[1], 0, server)
   c = 1
-  i = 0
-  while continue && i < 1000
-    continue = one_action(players[c], players[1-c], c, server)
+  while continue
+    continue = one_action(sockets[c], sockets[1-c], c, server)
     c = 1 - c
-    i += 1
   end
+  sockets[1-c].puts("you win")
+  sockets[c].puts("you lose")
 
-  if i == 1000
-    puts "time up"
-  else
-    puts "player" + (2-c).to_s + " won"
+  puts "player" + (2-c).to_s + " win"
+
+  sockets.each do |socket|
+    socket.close
   end
+  tcp_server.close
 end
 
 if __FILE__ == $0
-  p1 = RandomPlayer.new
-  p2 = RandomPlayer.new
-
-  play_game(p1, p2)
+  main(ARGV[0])
 end
