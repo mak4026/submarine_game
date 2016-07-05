@@ -172,29 +172,21 @@ def main(host, port)
     player = RandomPlayer.new
     sock.puts(player.initial_condition)
 
-    sock.puts(player.action)
     loop do
-      info = sock.gets
-      if info.rstrip == "you win"
-        puts "you win"
+      info = sock.gets.rstrip
+      puts info
+      if info == "your turn"
+        sock.puts(player.action)
+        player.update(sock.gets)
+      elsif info == "waiting"
+        player.update(sock.gets)
+      elsif info == "you win"
         break
-      elsif info.rstrip == "you lose"
-        puts "you lose"
+      elsif info == "you lose"
         break
+      else
+        raise RuntimeError, "unknown information"
       end
-      player.update(info)
-
-      sock.puts(player.action)
-
-      info = sock.gets
-      if info.rstrip == "you win"
-        puts "you win"
-        break
-      elsif info.rstrip == "you lose"
-        puts "you lose"
-        break
-      end
-      player.update(info)
     end
   end
   sock.close
