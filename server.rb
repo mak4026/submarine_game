@@ -244,14 +244,14 @@ def main(port)
 
   server = Server.new(sockets[0].gets, sockets[1].gets)
   puts "server initialized"
-  sockets[1].gets
 
-  continue = one_action(sockets[0], sockets[1], 0, server)
-  c = 1
-  while continue
+  c = 0
+  begin
+    sockets[c].puts("your turn")
+    sockets[1-c].puts("waiting")
     continue = one_action(sockets[c], sockets[1-c], c, server)
     c = 1 - c
-  end
+  end while continue
   sockets[1-c].puts("you win")
   sockets[c].puts("you lose")
 
