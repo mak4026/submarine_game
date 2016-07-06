@@ -6,13 +6,19 @@ class ManualPlayer < Player
 
   def initialize
     puts "please input x, y in 0 ~ " + (FIELD_SIZE - 1).to_s
-    puts "warship"
-    w = select_position
-    puts "cruiser"
-    c = select_position
-    puts "submarine"
-    s = select_position
-    super({"w" => w, "c" => c, "s" => s})
+    ps = {}
+    PlayerShip::MAX_HPS.keys.each do |type|
+      puts type
+      np = select_position
+      while ps.values.any?{|p| np == p}
+        puts "position overlapping"
+        np = select_position
+      end
+      ps[type] = np
+    end
+
+    super(ps)
+
     show_field
   end
 
