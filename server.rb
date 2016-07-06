@@ -42,6 +42,9 @@ class Client
       if overlap(position)
         raise ArgumentError, "given overlapping positions"
       end
+      if !Client.in_field?(position)
+        raise ArgumentError, "position out of field"
+      end
       @ships[type] = Ship.new(type, position)
     end
   end
