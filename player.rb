@@ -39,9 +39,6 @@ class Player
   def initialize(positions)
     @ships = {}
     positions.each do |type, position|
-      if overlap(position)
-        raise ArgumentError, "given overlapping positions"
-      end
       @ships[type] = PlayerShip.new(type, position)
     end
   end
