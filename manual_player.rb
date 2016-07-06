@@ -42,7 +42,7 @@ class ManualPlayer < Player
     info = JSON.parse(json)
     report(info, c)
     super(json)
-    if c == 1
+    if info.has_key?("result")
       if info["result"].has_key?("attacked")
         show_field(info["result"]["attacked"]["position"])
       else
@@ -159,13 +159,13 @@ class ManualPlayer < Player
   def report_moved(moved)
     print " moved " + moved["ship"] + " by "
     if moved["distance"][0] > 0
-      arrow = "^" * moved["distance"][0]
+      arrow = ">" * moved["distance"][0]
     elsif moved["distance"][0] < 0
-      arrow = "v" * (-moved["distance"][0])
+      arrow = "<" * (-moved["distance"][0])
     elsif moved["distance"][1] > 0
-      arrow = ">" * moved["distance"][1]
+      arrow = "v" * moved["distance"][1]
     elsif moved["distance"][1] < 0
-      arrow = "<" * (-moved["distance"][1])
+      arrow = "^" * (-moved["distance"][1])
     end
     puts arrow
   end
