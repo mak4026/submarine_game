@@ -44,6 +44,9 @@ class T_Server < Test::Unit::TestCase
     assert_raise do
       Client.new({"w" => [0,0], "c" => [0,1], "s" => [0,0]})
     end
+    assert_raise do
+      Client.new({"w" => [5,0], "c" => [0,1], "s" => [0,0]})
+    end
     c = Client.new({"w" => [0,0], "c" => [0,1], "s" => [1,0]})
     assert_equal([0,0], c.ships["w"].position)
     assert_equal([0,1], c.ships["c"].position)
