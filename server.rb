@@ -289,7 +289,7 @@ module Reporter
     print "\n"
     print "----"
     print_bar
-    print "\s\s\s\s"
+    print "\s\s\s-"
     print_bar
     print "\n"
   end
