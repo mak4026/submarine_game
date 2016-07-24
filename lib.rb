@@ -2,10 +2,10 @@
 module Ex_array
 	Empty = false
 
-	def make2d(n)
+	def make2d(n, obj = nil)
 		a = Array.new(n)
 		for i in 0...n
-			a[i] = Array.new(n)
+			a[i] = Array.new(n,obj)
 		end
 		a
 	end
@@ -41,7 +41,7 @@ module Ex_array
 		return new_array
 	end
 
-	def add(array1,array2)
+	def product(array1,array2)
 		new_array = make2d(5)
 		for i in 0...5
 			for j in 0...5
@@ -51,4 +51,23 @@ module Ex_array
 		new_array
 	end
 
+	def convert(field)
+		array = make2d(5,Empty)
+		field.each { |f|
+			array[f[0]][f[1]] = true
+		}
+		array
+	end
+
+	def invert(array)
+		field_list = []
+		for i in 0...5
+			for j in 0...5
+				if array[i][j]
+					field_list.push([i,j])
+				end
+			end
+		end
+		field_list
+	end
 end

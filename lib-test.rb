@@ -43,7 +43,7 @@ class T_lib < Test::Unit::TestCase
 		}
 	end
 
-	def test_add
+	def test_product
 		a = [[true,false,false,true,false],
 			[false,false,false,false,false],
 			[true,true,true,true,true],
@@ -55,11 +55,34 @@ class T_lib < Test::Unit::TestCase
 			[false,false,false,false,false],
 			[true,true,false,false,false]]
 
-		assert_equal(add(a,b),
+		assert_equal(product(a,b),
 			[[false,false,false,true,false],
 			[false,false,false,false,false],
 			[true,true,true,true,true],
 			[false,false,false,false,false],
 			[true,false,false,false,false]])
 	end
+	
+	def test_convert
+		a = [[true,false,false,true,false],
+			[false,false,false,false,false],
+			[true,true,true,true,true],
+			[false,false,false,false,false],
+			[true,false,true,false,true]]
+		field = [[0,0], [0,3], [2,0], [2,1], [2,2], [2,3], [2,4],
+				[4,0], [4,2], [4,4]]
+		assert_equal(convert(field), a)
+	end
+
+	def test_invert
+		a = [[true,false,false,true,false],
+			[false,false,false,false,false],
+			[true,true,true,true,true],
+			[false,false,false,false,false],
+			[true,false,true,false,true]]
+		field = [[0,0], [0,3], [2,0], [2,1], [2,2], [2,3], [2,4],
+				[4,0], [4,2], [4,4]]
+		assert_equal(invert(a), field)
+	end
+
 end
