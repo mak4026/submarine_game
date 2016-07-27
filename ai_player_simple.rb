@@ -14,12 +14,13 @@ class SimplePlayer < Player
     for i in 0...FIELD_SIZE
       for j in 0...FIELD_SIZE
         @field.push([i,j])
-        @enemy_field.each{ |f|
-          f.push([i,j])
+        @enemy_field.each{ |key,array|
+          array.push([i,j])
         }
       end
     end
-
+    
+    p @enemy_field
     ps = @field.sample(3)
     positions = {"w" => ps[0], "c" => ps[1], "s" => ps[2]}
     super(positions)
@@ -41,6 +42,7 @@ class SimplePlayer < Player
       target = @ships.keys.sample
       # 攻撃場所を狙う艦の存在する可能性のある場所から決定
       to = @enemy_field[target].sample
+      p @enemy_field
 
       # 移動によって@enemy_field が全てnilになってしまう場合があるので、そうなったら@enemy_fieldをやり直す(仮)
       if to.nil?
@@ -97,6 +99,14 @@ class SimplePlayer < Player
             }
           end
         end
+      elsif status == "enemy" # 敵のターン
+        if result.has_key?("moved")
+          ship = result["moved"]["ship"]
+          dist = result["moved"]["distance"]
+          p ship
+          p dist
+          @enemy_field[ship] = invert(slide(convert(@enemy_field[ship]),dist))
+        end
       end
     end
   end
@@ -120,7 +130,7 @@ def main(host, port)
         sock.puts(player.action)
         player.update(sock.gets,"me")
       elsif info == "waiting"
-        player.update(sock.gets,"me")
+        player.update(sock.gets,"enemy")
       elsif info == "you win"
         break
       elsif info == "you lose"
