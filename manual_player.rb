@@ -37,6 +37,7 @@ class ManualPlayer < Player
     elsif act == "a"
       to = select_position
       while !attackable?(to)
+        puts "you can't attack " + to.to_s
         to = select_position
       end
 
