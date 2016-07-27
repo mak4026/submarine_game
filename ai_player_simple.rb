@@ -20,7 +20,6 @@ class SimplePlayer < Player
       end
     end
     
-    p @enemy_field
     ps = @field.sample(3)
     positions = {"w" => ps[0], "c" => ps[1], "s" => ps[2]}
     super(positions)
@@ -39,12 +38,12 @@ class SimplePlayer < Player
       move(ship.type, to).to_json
     elsif act == "attack"
       # 狙う艦を決定
-      target = @ships.keys.sample
+      target = @enemy_field.keys.sample
       # 攻撃場所を狙う艦の存在する可能性のある場所から決定
       to = @enemy_field[target].sample
-      p @enemy_field
 
       # 移動によって@enemy_field が全てnilになってしまう場合があるので、そうなったら@enemy_fieldをやり直す(仮)
+      # 多分呼ばれることはないけど一応残す
       if to.nil?
         for i in 0...FIELD_SIZE
           for j in 0...FIELD_SIZE
@@ -52,7 +51,7 @@ class SimplePlayer < Player
           end
         end
         to = @enemy_field[target].sample
-        p "reset!"
+        p "!!!!enemy fleet lost!!!!"
       end
       
       # ハマる可能性があるので、敵艦の存在場所を狙うのは25回まで
@@ -60,7 +59,7 @@ class SimplePlayer < Player
       while !attackable?(to)
         to = @enemy_field[target].sample
         count += 1
-        break if count > 25
+        break if count > 60
       end
 
       if attackable?(to) # 攻撃可能ならそのまま攻撃
@@ -79,13 +78,20 @@ class SimplePlayer < Player
     data = JSON.parse(json)
     if data.has_key?("result") # result は初回ターンのみ存在しないので確認
       result = data["result"]
+      cond = data["condition"]
+      p result
+      p cond
       if status == "me" # 自分のターン
         if result.has_key?("attacked") # 攻撃した場合
           if result["attacked"].has_key?("hit") # 命中した場合
             ship = result["attacked"]["hit"]
-            @enemy_field[ship] = [result["attacked"]["position"]]
+            if !cond["enemy"].has_key?(ship) # 死亡した艦は@enemy_field のキーを削除する
+              @enemy_field.delete(ship)
+            else
+              @enemy_field[ship] = [result["attacked"]["position"]]
+            end
           else # 命中しなかった場合、その座標には何も居ないのが確定する
-            @ships.keys.each{ |ship|
+            @enemy_field.keys.each{ |ship|
               @enemy_field[ship].delete(result["attacked"]["position"])
             }
           end
@@ -103,11 +109,10 @@ class SimplePlayer < Player
         if result.has_key?("moved")
           ship = result["moved"]["ship"]
           dist = result["moved"]["distance"]
-          p ship
-          p dist
           @enemy_field[ship] = invert(slide(convert(@enemy_field[ship]),dist))
         end
       end
+      p @enemy_field
     end
   end
 end
