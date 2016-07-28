@@ -52,21 +52,10 @@ class StatePlayer < Player
           @state = :chase
         end
       elsif @state == :chase
-        # if @focus.nil?
-          # ship = @ships.values.sample
-          # to = @field.sample
-          # while !ship.reachable?(to) || !overlap(to).nil?
-          #   to = @field.sample
-          # end
-          # print "move -> #{ship.type} #{to}\n"
-          # return move(ship.type, to).to_json
-        # end
-        # 追いかける対象がいない時は適当な艦を選ぶ
-        target = @focus.nil? ? @enemy_field.keys.sample : @focus 
-        target_point = @enemy_field[target].sample
-
         while
           ship = @ships.values.sample
+          target = @focus.nil? ? @enemy_field.keys.sample : @focus 
+          target_point = @enemy_field[target].sample
           # ターゲットの x 座標か y 座標が同じ点に移動を試みる
           to = []
           for i in 0..1
