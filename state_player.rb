@@ -89,10 +89,26 @@ class StatePlayer < Player
       elsif @state == :escape
         # 前ターンに攻撃を食らった場合は逃げる
         ship = @ships[@escape_ship]
-        to = @field.sample
-        while !ship.reachable?(to) || !overlap(to).nil?
+
+        # まず、絶対安全圏に逃げられるかどうかを考える
+        to = nil
+        safe_field = complete_safe_field
+        safe_field.shuffle!
+        safe_field.each{ |pos|
+          if ship.reachable?(pos) && overlap(pos).nil?
+            to = pos
+            break
+          end
+        }
+
+        # ダメだったらランダムに選んで逃げる
+        if to.nil?
           to = @field.sample
+          while !ship.reachable?(to) || !overlap(to).nil?
+            to = @field.sample
+          end
         end
+
         # :attack に戻す
         @state = :attack
         @escape_ship = nil
@@ -152,6 +168,19 @@ class StatePlayer < Player
       end
     end
   end
+
+  private
+    # どの艦の射程範囲にも絶対に入っていない座標を求める
+    def complete_safe_field
+      # 少しでも射程範囲に入っている可能性がある座標をすべて格納する
+      all_reach_field = make2d(5,Empty)
+      @enemy_field.each{|ship,field|
+        field.each{ |pos|
+          all_reach_field = add(reach_map(pos),all_reach_field)
+        }
+      }
+      return invert(negate(all_reach_field))
+    end
 end
 
 

@@ -58,11 +58,47 @@ module Ex_array
 		a
 	end
 
+	# position の艦の射程範囲の9マスのみtrueになるマップ(配列)を返す
+	def reach_map(position)
+		a = make2d(5, Empty)
+		x = position[0]
+		y = position[1]
+
+		for i in -1..1
+			for j in -1..1
+				if x+i >= 0 && x+i < 5 && y+j >=0 && y+j < 5
+					a[x+i][y+j] = true
+				end
+			end
+		end
+		a
+	end
+
 	def product(array1,array2)
 		new_array = make2d(5)
 		for i in 0...5
 			for j in 0...5
 				new_array[i][j] = array1[i][j] && array2[i][j]
+			end
+		end
+		new_array
+	end
+
+	def add(array1,array2)
+		new_array = make2d(5)
+		for i in 0...5
+			for j in 0...5
+				new_array[i][j] = array1[i][j] || array2[i][j]
+			end
+		end
+		new_array
+	end
+
+	def negate(array)
+		new_array = make2d(5)
+		for i in 0...5
+			for j in 0...5
+				new_array[i][j] = !array[i][j]
 			end
 		end
 		new_array
