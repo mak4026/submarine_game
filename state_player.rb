@@ -11,6 +11,7 @@ class StatePlayer < Player
   def initialize
     @state = :attack
     @focus = nil
+    @escape_ship = nil
     @field = []
     # 敵艦の存在可能な場所を配列で格納する
     @enemy_field = { "w" => [], "c" => [], "s" => []}
@@ -37,7 +38,7 @@ class StatePlayer < Player
         # 攻撃場所を狙う艦の存在する可能性のある場所から決定
         to = @enemy_field[target].sample
 
-        # ハマる可能性があるので、敵艦の存在場所を狙うのは25回まで
+        # ハマる可能性があるので、敵艦の存在場所を狙うのは60回まで
         count = 0
         while !attackable?(to)
           to = @enemy_field[target].sample
@@ -70,6 +71,18 @@ class StatePlayer < Player
             end
           end
         end
+      elsif @state == :escape
+        # 前ターンに攻撃を食らった場合は逃げる
+        ship = @ships[@escape_ship]
+        to = @field.sample
+        while !ship.reachable?(to) || !overlap(to).nil?
+          to = @field.sample
+        end
+        # :attack に戻す
+        @state = :attack
+        @escape_ship = nil
+        p "escape -> #{ship.type} #{to}"
+        return move(ship.type, to).to_json
       end
     end
   end
@@ -112,6 +125,14 @@ class StatePlayer < Player
           ship = result["moved"]["ship"]
           dist = result["moved"]["distance"]
           @enemy_field[ship] = invert(slide(convert(@enemy_field[ship]),dist))
+        elsif result.has_key?("attacked")
+          if result["attacked"].has_key?("hit")
+            if @ships.has_key?(result["attacked"]["hit"])
+              # 攻撃を食らった艦が生きている場合は逃げる
+              @state = :escape
+              @escape_ship = result["attacked"]["hit"]
+            end
+          end
         end
       end
     end
