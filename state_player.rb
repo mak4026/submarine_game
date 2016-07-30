@@ -34,7 +34,7 @@ class StatePlayer < Player
       if @state == :attack
         # 狙う艦を決定
         # @focus に値が入っていればそれを使う
-        target = @focus.nil? ? @enemy_field.keys.sample : @focus 
+        target = @focus.nil? ? @enemy_field.keys.sample : @focus
         # 攻撃場所を狙う艦の存在する可能性のある場所から決定
         to = @enemy_field[target].sample
 
@@ -49,7 +49,22 @@ class StatePlayer < Player
         if attackable?(to) # 攻撃可能ならそのまま攻撃
           p "attack -> #{target} #{to}"
           return attack(to).to_json
-        else # だめな場合はstateを:chase に
+        else
+          # 他の艦が確実に攻撃できる場合は攻撃
+          # focus 以外の艦のfieldを保存したハッシュ
+          others_field = @enemy_field.reject{|ship,array| ship == target}
+          others_field.each{ |ship, array|
+            # target 以外の艦のうち、存在場所が確定しているもの
+            if array.count == 1
+              to = array[0]
+              if attackable?(to)
+                # 攻撃可能なら攻撃
+                p "attack -> #{ship} #{to}"
+                return attack(to).to_json 
+              end
+            end
+          }
+          # だめな場合はstateを:chase に
           @state = :chase
         end
       elsif @state == :chase
