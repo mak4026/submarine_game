@@ -159,9 +159,25 @@ class StatePlayer < Player
         elsif result.has_key?("attacked")
           if result["attacked"].has_key?("hit")
             if @ships.has_key?(result["attacked"]["hit"])
-              # 攻撃を食らった艦が生きている場合は逃げる
-              @state = :escape
-              @escape_ship = result["attacked"]["hit"]
+              # 攻撃を食らった艦が生きている場合
+              damaged_ship = result["attacked"]["hit"]
+              counter_flag = false
+              @enemy_field.each{ |ship, field|
+                # 場所がわかっている場合
+                if field.count == 1
+                  if @ships[damaged_ship].attackable?(field[0]) && @ships[damaged_ship].hp >= cond["enemy"][ship]["hp"]
+                    # そのまま殴り返せそうな場合は殴り返す
+                    @focus = ship 
+                    @state = :attack
+                    counter_flag = true
+                    break
+                  end
+                end
+              }
+              if !counter_flag # 殴り返せそうにないなら逃げる
+                @state = :escape
+                @escape_ship = damaged_ship
+              end
             end
           end
         end
