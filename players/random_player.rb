@@ -1,5 +1,5 @@
 require 'socket'
-require './player'
+require_relative('../lib/player')
 
 class RandomPlayer < Player
   attr :field

@@ -1,5 +1,5 @@
 require('test/unit')
-load('lib.rb')
+require_relative('../lib/lib.rb')
 
 class T_lib < Test::Unit::TestCase
 	include Ex_array

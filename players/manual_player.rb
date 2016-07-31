@@ -1,6 +1,6 @@
 require 'socket'
 require 'json'
-require './player'
+require_relative('../lib/player')
 
 class ManualPlayer < Player
 

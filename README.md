@@ -1,6 +1,6 @@
 # submarine_game
 人やAIが対戦できる潜水艦ゲーム。  
-クライアントプログラム作成用の詳しい仕様は[こちら](/document.md)  
+クライアントプログラム作成用の詳しい仕様は[こちら](/doc/document.md)  
 
 ## ルール
 1. 各プレイヤーはそれぞれ5x5のマス目上に戦艦、巡洋艦、潜水艦を配置する。位置は相手に伝えない。自分の艦同士を同じ場所に配置してはいけない。
@@ -14,17 +14,17 @@
 ## 実行
 まずポート番号を指定してサーバを起動する。
 ```
-$ ruby server.rb 2000
+$ ruby source/server.rb 2000
 ```
 サーバをつけたら、アドレスとポート番号を指定してクライアントを起動する。
 ```
-$ ruby random_player.rb localhost 2000
+$ ruby players/random_player.rb localhost 2000
 ```
 二つクライアントプログラムが繋がったらゲームが開始する。  
-人間プレイ用に[manual_player.rb](manual_player.rb)が用意してある。ターミナル上でキー入力をして行動を指示する。以下のような感じなのでターミナルを広めにして起動したほうが良い。  
+人間プレイ用に[manual_player.rb](/players/manual_player.rb)が用意してある。ターミナル上でキー入力をして行動を指示する。以下のような感じなのでターミナルを広めにして起動したほうが良い。  
 マスには艦の種類のアルファベット1文字と、残りHPが表示される。自分あるいは相手が攻撃したマスには!がつく。その他相手の行動やHPなどの情報はテキストで出力される。
 ```
-$ ruby manual_player.rb localhost 2000
+$ ruby players/manual_player.rb localhost 2000
 you are connected. please send me initial state.
 please input x, y in 0 ~ 4
 w
