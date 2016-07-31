@@ -29,7 +29,7 @@ class ManualPlayer < Player
     act = select_action
 
     if act == "m"
-      ship = ships[select_ship]
+      ship = @ships[select_ship]
       to = select_position
       while !ship.reachable?(to) || !overlap(to).nil?
         puts "you can't move " + ship.type + ship.position.to_s + " to " + to.to_s
@@ -121,7 +121,7 @@ class ManualPlayer < Player
     puts "a: attack"
 
     begin
-      puts "please input \"a\" or \"m\""
+      puts "please input \"m\" or \"a\""
       act = STDIN.gets.rstrip
     end while act != "m" && act != "a"
 
@@ -134,8 +134,8 @@ class ManualPlayer < Player
 
     print "select your ship: "
     ship = STDIN.gets.rstrip
-    while ship != "w" && ship != "c" && ship != "s"
-      puts "please input \"w\" or \"c\" or \"s\""
+    while !@ships.has_key?(ship)
+      puts "please input existing ship"
       print "select your ship: "
       ship = STDIN.gets.rstrip
     end
