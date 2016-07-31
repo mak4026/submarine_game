@@ -412,6 +412,8 @@ class StatePlayer2 < Player
                 @msg=result["attacked"]["hit"]
                 @state=:escape
               end
+            elsif
+              @my_field.delete(result["attacked"]["hit"])
             end
           end
           if result["attacked"].has_key?("near")
