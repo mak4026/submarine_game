@@ -368,7 +368,7 @@ class StatePlayer2 < Player
           @my_field[@msg]=invert(slide(convert(@my_field[@msg]),[max_to[0]-@ships[@msg].position[0],max_to[1]-@ships[@msg].position[1]]))
           p "move (#{@msg},#{max_to})"
           p @state
-          return move(@msg,max_to)
+          return move(@msg,max_to).to_json
         else
           #どこに行っても敵にやられる可能性があるのでとりあえず索敵
           @state=:sakuteki
