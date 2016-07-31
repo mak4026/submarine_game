@@ -63,6 +63,40 @@ class T_lib < Test::Unit::TestCase
 			[true,false,false,false,false]])
 	end
 
+	def test_add
+		a = [[true,false,false,true,false],
+			[false,false,false,false,false],
+			[true,true,true,true,true],
+			[false,false,false,false,false],
+			[true,false,true,false,true]]
+		b = [[false,true,true,true,false],
+			[true,true,true,true,true],
+			[true,true,true,true,true],
+			[false,false,false,false,false],
+			[true,true,false,false,false]]
+
+		assert_equal(add(a,b),
+			[[true,true,true,true,false],
+			[true,true,true,true,true],
+			[true,true,true,true,true],
+			[false,false,false,false,false],
+			[true,true,true,false,true]])
+	end
+
+	def test_negate
+		a = [[true,false,false,true,false],
+			[false,false,false,false,false],
+			[true,true,true,true,true],
+			[false,false,false,false,false],
+			[true,false,true,false,true]]
+			assert_equal(negate(a),
+				[[false,true,true,false,true],
+				[true,true,true,true,true],
+				[false,false,false,false,false],
+				[true,true,true,true,true],
+				[false,true,false,true,false]])
+	end
+
 	def test_near_map
 		u = [0,0]
 		u_answer = [[false,true,false,false,false],
@@ -79,7 +113,24 @@ class T_lib < Test::Unit::TestCase
 					[false,true,true,true,false]]
 		assert_equal(near_map(v),v_answer)
 	end
-	
+
+	def test_reach_map
+		u = [0,0]
+		u_answer = [[true,true,false,false,false],
+					[true,true,false,false,false],
+					[false,false,false,false,false],
+					[false,false,false,false,false],
+					[false,false,false,false,false]]
+		assert_equal(reach_map(u),u_answer)
+		v = [3,2]
+		v_answer = [[false,false,false,false,false],
+					[false,false,false,false,false],
+					[false,true,true,true,false],
+					[false,true,true,true,false],
+					[false,true,true,true,false]]
+		assert_equal(reach_map(v),v_answer)
+	end
+
 	def test_convert
 		a = [[true,false,false,true,false],
 			[false,false,false,false,false],
