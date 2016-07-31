@@ -52,7 +52,6 @@ class StatePlayer2 < Player
   def action
     p @enemy_field
     p @my_field
-    p @state
     #一人しかいなかったら潜行モードへ
     if @my_field.size==1
       @state=:stealth
@@ -114,7 +113,10 @@ class StatePlayer2 < Player
           end
         end
         @attacked_positions.push(attackable_positions[max_ind])
+        p "attack->#{attackable_positions[max_ind}"
+        p @state
         return attack(attackable_positions[max_ind]).to_json
+
       elsif @state==:attack
         #ステート攻撃: 基本戦略
         #自艦を動かさずに攻撃できるなら攻撃
@@ -122,9 +124,11 @@ class StatePlayer2 < Player
         #自艦を二回動かせば攻撃できる場合：適切な位置にバレていない艦を移動する
         #ただし、移動により自艦の場所が一箇所に絞られてしまう場合は索敵モードに移行する
         @attacked_positions=[] #索敵初期化
-        if (attackable?(msg))
+        if (attackable?(@msg))
           #攻撃できるならそのまま攻撃
-          return attack(@msg).to_json
+          p "attack->#{@msg}"
+          p @state
+          return attack(@msg).to_json          
         end
         #　一回の移動でなんとかなる場合
         #評価関数：（移動後に推測されるであろう存在可能性情報を考慮した各艦の存在可能マス数）^2 を艦ごとに足し合わせる
@@ -175,6 +179,8 @@ class StatePlayer2 < Player
         }
         if (max_eval!=0)
           @my_field[max_type]=invert(slide(convert(@my_field[max_type]),max_dist))
+          p "move (#{max_type},[#{@ships[max_type].position[0]+max_dist[0]},#{@ships[max_type].position[1]+max_dist[1]}])"
+          p @state
           return move(max_type,[@ships[max_type].position[0]+max_dist[0],@ships[max_type].position[1]+max_dist[1]]).to_json
         end
 
@@ -222,7 +228,9 @@ class StatePlayer2 < Player
           end
         }
         if (max_eval!=0)
-         @my_field[max_type]=invert(slide(convert(@my_field[max_type]),max_dist))
+          @my_field[max_type]=invert(slide(convert(@my_field[max_type]),max_dist))
+          p "move (#{max_type},[#{@ships[max_type].position[0]+max_dist[0]},#{@ships[max_type].position[1]+max_dist[1]}])"
+          p @state
          return move(max_type,[@ships[max_type].position[0]+max_dist[0],@ships[max_type].position[1]+max_dist[1]]).to_json
         else
           @state=:sakuteki
@@ -290,6 +298,8 @@ class StatePlayer2 < Player
         if (max_eval!=0)
           @my_field[@msg]=invert(slide(convert(@my_field[@msg]),[max_to[0]-@ships[@msg].position[0],max_to[1]-@ships[@msg].position[1]]))
           @state=:sakuteki #次ターンは索敵
+          p "move (#{@msg},#{max_to})"
+          p @state
           return move(@msg,max_to).to_json
         elsif
           #どこに逃げても敵の攻撃範囲内になる場合は反撃
@@ -312,6 +322,8 @@ class StatePlayer2 < Player
         @enemy_field.each{|type,array|
           if array.count==1
             if attackable?(array[0])
+              p "attack->#{array[0]}"
+              p @state
               return attack(array[0]).to_json
             end
             danger_zone+=invert(near_map(array[0]))
@@ -354,6 +366,8 @@ class StatePlayer2 < Player
         end
         if (max_eval!=0)
           @my_field[@msg]=invert(slide(convert(@my_field[@msg]),[max_to[0]-@ships[@msg].position[0],max_to[1]-@ships[@msg].position[1]]))
+          p "move (#{@msg},#{max_to})"
+          p @state
           return move(@msg,max_to)
         else
           #どこに行っても敵にやられる可能性があるのでとりあえず索敵
