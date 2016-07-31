@@ -1,5 +1,5 @@
 require('test/unit')
-load('player.rb')
+require_relative('../lib/player.rb')
 require 'json'
 
 class T_Player < Test::Unit::TestCase

@@ -1,5 +1,5 @@
 require('test/unit')
-load('server.rb')
+require_relative('../source/server.rb')
 
 class T_Server < Test::Unit::TestCase
 

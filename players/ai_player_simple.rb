@@ -1,6 +1,6 @@
 require 'socket'
-require './player'
-require './lib'
+require_relative('../lib/player')
+require_relative('../lib/lib')
 
 class SimplePlayer < Player
   include Ex_array
