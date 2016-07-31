@@ -1,9 +1,13 @@
 require 'socket'
 require_relative('../lib/player')
 
+# ランダムに行動を決定するプレイヤーである．
 class RandomPlayer < Player
+
+  # フィールドを2x2の配列として持っている．
   attr :field
 
+  # 初期配置を非復元抽出でランダムに決める．
   def initialize
     @field = []
     for i in 0...FIELD_SIZE
@@ -17,6 +21,10 @@ class RandomPlayer < Player
     super(positions)
   end
 
+  #
+  # 移動か攻撃かランダムに決める．
+  # どれがどこへ移動するか，あるいはどこに攻撃するかもランダム．
+  #
   def action
     act = ["move", "attack"].sample
 
@@ -39,6 +47,7 @@ class RandomPlayer < Player
   end
 end
 
+# 仕様に従ってサーバとソケット通信を行う．
 def main(host, port)
   begin
     sock = TCPSocket.open(host, port)

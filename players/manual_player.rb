@@ -2,8 +2,10 @@ require 'socket'
 require 'json'
 require_relative('../lib/player')
 
+# 操作できるプレイヤーである．
 class ManualPlayer < Player
 
+  # 入力を受け付けて初期位置を決定する．
   def initialize
     puts "please input x, y in 0 ~ " + (FIELD_SIZE - 1).to_s
     ps = {}
@@ -22,6 +24,7 @@ class ManualPlayer < Player
     show_field
   end
 
+  # 行動の決定は入力による．指定不可能な座標についてはメッセージを表示し再度入力を取る．
   def action
     act = select_action
 
@@ -45,6 +48,7 @@ class ManualPlayer < Player
     end
   end
 
+  # 状態を更新する際，自分・相手の行動を文字で，自分のフィールドの状態をAAで表示する．
   def update(json, c)
     info = JSON.parse(json)
     report(info, c)
@@ -60,6 +64,7 @@ class ManualPlayer < Player
     end
   end
 
+  # 行動を文章で表示する．
   def report(info, c)
     if c == 0
       player = "you"
@@ -78,6 +83,7 @@ class ManualPlayer < Player
     report_condition(info["condition"])
   end
 
+  # フィールドをAAで表示する．
   def show_field(hit=nil)
     print_in_cell("\s\s\s")
     for i in 0...FIELD_SIZE
@@ -108,6 +114,7 @@ class ManualPlayer < Player
 
   private
 
+  # 攻撃の入力を受け付ける．
   def select_action
     puts "select your action:"
     puts "m: move"
@@ -121,6 +128,7 @@ class ManualPlayer < Player
     act
   end
 
+  # 艦の選択を受け付ける．
   def select_ship
     puts "w: warship c: cruiser s: submarine"
 
@@ -135,6 +143,7 @@ class ManualPlayer < Player
     ship
   end
 
+  # 座標の選択を受け付ける．
   def select_position
     print "x = "
     x = STDIN.gets.to_i
@@ -152,10 +161,12 @@ class ManualPlayer < Player
     position
   end
 
+  # マス目の縦線を表示する．
   def print_in_cell(s)
     print s + "|"
   end
 
+  # マス目の横線を表示する．
   def print_bar
     (FIELD_SIZE + 1).times do
       print "----"
@@ -163,6 +174,7 @@ class ManualPlayer < Player
     print "\n"
   end
 
+  # 移動された場合の文章を作る．
   def report_moved(moved)
     print " moved " + moved["ship"] + " by "
     if moved["distance"][0] > 0
@@ -177,6 +189,7 @@ class ManualPlayer < Player
     puts arrow
   end
 
+  # 攻撃した，された場合の文章を作る．
   def report_attacked(attacked)
     print " attacked "  + attacked["position"].to_s
     if attacked.has_key?("hit")
@@ -188,6 +201,7 @@ class ManualPlayer < Player
     print "\n"
   end
 
+  # 相手の艦の状態を通知する．
   def report_condition(condition)
     print "enemy ships: "
     condition["enemy"].each do |type, state|
@@ -197,6 +211,7 @@ class ManualPlayer < Player
   end
 end
 
+# ソケット通信を行う．
 def main(host, port)
   begin
     sock = TCPSocket.open(host, port)
