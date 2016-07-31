@@ -26,6 +26,7 @@ class StatePlayer2 < Player
       for j in 0...FIELD_SIZE
         @field.push([i,j])
         @enemy_field.each { |key,array| array.push([i,j])}
+        @my_field.each {|key,array| array.push([i,j])}
       end
     end
     @field=@field.shuffle
@@ -49,7 +50,9 @@ class StatePlayer2 < Player
   end
 
   def action
-
+    p @enemy_field
+    p @my_field
+    p @state
     #一人しかいなかったら潜行モードへ
     if @my_field.size==1
       @state=:stealth
