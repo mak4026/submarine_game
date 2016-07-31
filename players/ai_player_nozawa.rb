@@ -124,7 +124,7 @@ class StatePlayer2 < Player
         @attacked_positions=[] #索敵初期化
         if (attackable?(msg))
           #攻撃できるならそのまま攻撃
-          return attack(msg).to_json
+          return attack(@msg).to_json
         end
         #　一回の移動でなんとかなる場合
         #評価関数：（移動後に推測されるであろう存在可能性情報を考慮した各艦の存在可能マス数）^2 を艦ごとに足し合わせる
@@ -135,12 +135,12 @@ class StatePlayer2 < Player
         @ships.each{|type,ship|
           position=ship.position
           cur_eval=0
-          if (position[0]-msg[0]).abs<=1
+          if (position[0]-@msg[0]).abs<=1
             next_my_field=@my_field.clone
-            if (position[1]-msg[1]>0)
-              distance=position[1]-msg[1]-1
+            if (position[1]-@msg[1]>0)
+              distance=position[1]-@msg[1]-1
             elsif
-              distance=position[1]-msg[1]+1
+              distance=position[1]-@msg[1]+1
             end
             next_my_field[type]=invert(slide(convert(next_my_field[type]),[0,distance]))
             if (next_my_field[type].count!=1) #移動することで自分の場所が絞られてしまう場合は考えない
@@ -155,12 +155,12 @@ class StatePlayer2 < Player
             elsif
               skip_list.push(type)
             end
-          elsif (position[1]-msg[1]).abs<=1
+          elsif (position[1]-@msg[1]).abs<=1
             next_my_field=@my_field.clone
-            if (position[0]-msg[0]>0)
-              distance=position[0]-msg[0]-1
+            if (position[0]-@msg[0]>0)
+              distance=position[0]-@msg[0]-1
             elsif
-              distance=position[0]-msg[0]+1
+              distance=position[0]-@msg[0]+1
             end
             next_my_field[type]=invert(slide(convert(next_my_field[type]),[distance,0]))
             next_my_field.each{|type,array|
@@ -186,10 +186,10 @@ class StatePlayer2 < Player
           end
           cur_eval=0
           next_my_field=@my_field.clone
-          if (position[1]-msg[1]>0)
-            distance=position[1]-msg[1]-1
+          if (position[1]-@msg[1]>0)
+            distance=position[1]-@msg[1]-1
           elsif
-            distance=position[1]-msg[1]+1
+            distance=position[1]-@msg[1]+1
           end
           next_my_field[type]=invert(slide(convert(next_my_field[type]),[0,distance]))
           if next_my_field[type].count!=1 && (overlap([position[0],position[1]+distance])==nil)
@@ -204,10 +204,10 @@ class StatePlayer2 < Player
           end
           cur_eval=0
           next_my_field=@my_field.clone
-          if (position[0]-msg[0]>0)
-            distance=position[0]-msg[0]-1
+          if (position[0]-@msg[0]>0)
+            distance=position[0]-@msg[0]-1
           elsif
-            distance=position[0]-msg[0]+1
+            distance=position[0]-@msg[0]+1
           end
           next_my_field[type]=invert(slide(convert(next_my_field[type]),[distance,0]))
           if next_my_field[type].count!=1 && (overlap([position[0]+distance,position[1]])==nil)
