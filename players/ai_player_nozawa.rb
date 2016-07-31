@@ -402,7 +402,7 @@ class StatePlayer2 < Player
               counter_flag=false
               @enemy_field.each{|ship,field|
                 if field.count==1
-                  if @ships[result["attacked"]["hit"]].attackable? && @ships[result["attacked"]["hit"]].hp >= cond["enemy"][ship]["hp"]
+                  if @ships[result["attacked"]["hit"]].attackable?(field[0]) && @ships[result["attacked"]["hit"]].hp >= cond["enemy"][ship]["hp"]
                     @msg=field[0]
                     @state=:attack
                     counter_flag=true
