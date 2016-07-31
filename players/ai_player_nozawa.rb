@@ -386,12 +386,15 @@ class StatePlayer2 < Player
     if data.has_key?("result")
       result=data["result"]
       cond=data["condition"]
+      listed_ships=["w","c","s"] #攻撃がスカッた敵艦情報を更新するのに使用
       if status == :me
         if result.has_key?("attacked")
           if result["attacked"].has_key?("hit")
             ship=result["attacked"]["hit"]
+            listed_ships.delete(ship)
             if !cond["enemy"].has_key?(ship)
               @enemy_field.delete(ship)
+              @state=:sakuteki #敵を倒したら索敵に戻る
             else
               @enemy_field[ship]=[result["attacked"]["position"]]
             end
@@ -405,6 +408,14 @@ class StatePlayer2 < Player
             result["attacked"]["near"].each{|ship|
               ship_map=convert(@enemy_field[ship])
               @enemy_field[ship]=invert(product(ship_map,near_map))
+              listed_ships.delete(ship)
+            }
+          end
+          if (listed_ships.size!=0)
+            listed_ships.each{|ship|
+              if @enemy_field.has_key?(ship)
+                @enemy_field[ship]=invert(product(convert(@enemy_field[ship]),negate(reach_map(result["attacked"]["position"]))))
+              end
             }
           end
         end
@@ -415,6 +426,7 @@ class StatePlayer2 < Player
           @enemy_field[ship]=invert(slide(convert(@enemy_field[ship]),dist))
         elsif result.has_key?("attacked")
           if result["attacked"].has_key?("hit")
+            listed_ships.delete(result["attacked"]["hit"])
             if @ships.has_key?(result["attacked"]["hit"])
               @my_field[result["attacked"]["hit"]]=[result["attacked"]["position"]]
               counter_flag=false
@@ -441,6 +453,14 @@ class StatePlayer2 < Player
             result["attacked"]["near"].each{|ship|
               ship_map=convert(@my_field[ship])
               @my_field[ship]=invert(product(ship_map,near_map))
+              listed_ships.delete(ship)
+            }
+          end
+          if listed_ships.size!=0
+            listed_ships.each{|ship|
+              if @my_field.has_key?(ship)
+                @my_field[ship]=invert(product(convert(@my_field[ship]),negate(reach_map(result["attacked"]["position"]))))
+              end
             }
           end
         end
