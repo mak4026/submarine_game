@@ -153,12 +153,15 @@ class Client
   end
 end
 
-# 処理を行うクラスである．プレイヤー2人を保持している．
+#
+# 処理を行うクラスである．プレイヤー2人を保持している． ．
+#
 class Server
 
   #
-  # プレイヤーの配列である．以降，パラメータcで(c-1)番目のプレイヤーにアクセスする．
-  # 今プレイヤーが2人であるという前提なので，cと1-cで両プレイヤーにアクセスできる．
+  # プレイヤーの配列である．
+  # 行動プレイヤーのインデックスをcとする．
+  # 今プレイヤーが2人であるという前提なので， 待機プレイヤーのインデックスは1-cである．
   #
   attr :clients
 
@@ -175,8 +178,8 @@ class Server
   end
 
   #
-  # 攻撃，あるいは移動の処理を行い，両プレイヤーに結果を通知するJSONを作る．
-  # 攻撃，移動可能であるかチェックする．
+  # 可能かどうかチェックしてから攻撃，あるいは移動の処理を行い，両プレイヤーに結果を通知するJSONを作る．
+  # JSONの配列を返す．0番目の要素が行動プレイヤー宛，1番目の要素が待機プレイヤー宛である．
   #
   def action(c, json)
     info = Array.new(2) { {} }
@@ -343,7 +346,10 @@ module Reporter
   end
 end
 
+#
 # プレイヤーの行動をソケットから取得して処理し，結果を通知する．
+# 勝利したプレイヤーを返す．勝敗が決していない時は-1を返す．
+#
 def one_action(active, passive, c, server)
   act = active.gets
   results = server.action(c, act)
@@ -351,7 +357,15 @@ def one_action(active, passive, c, server)
   active.puts(results[0])
   passive.puts(results[1])
 
-  !JSON.parse(results[0]).has_key?("outcome")
+  if JSON.parse(results[0]).has_key?("outcome")
+    if JSON.parse(results[0])["outcome"]
+      c
+    else
+      1 - c
+    end
+  else
+    -1
+  end
 end
 
 # TCPコネクション上で処理を行う．
@@ -367,18 +381,29 @@ def main(port)
 
   server = Server.new(sockets[0].gets, sockets[1].gets)
 
+  # バトル回数を保持する変数．
+  i = 0
+  # 行動プレイヤーを保持する変数．
   c = 0
   Reporter.report_field(server.initial_condition(c), c)
   begin
     sockets[c].puts("your turn")
     sockets[1-c].puts("waiting")
-    continue = one_action(sockets[c], sockets[1-c], c, server)
+    winner = one_action(sockets[c], sockets[1-c], c, server)
     c = 1 - c
-  end while continue
-  sockets[1-c].puts("you win")
-  sockets[c].puts("you lose")
+    i += 1
+  end while winner == -1 && i < 10000
+  if winner == -1
+    sockets.each do |socket|
+      socket.puts("even")
+    end
+    puts "even"
+  else
+    sockets[winner].puts("you win")
+    sockets[1-winner].puts("you lose")
+  end
 
-  puts "player" + (2-c).to_s + " win"
+  puts "player" + (1+winner).to_s + " win"
 
   sockets.each do |socket|
     socket.close
