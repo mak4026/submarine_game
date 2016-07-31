@@ -91,6 +91,7 @@ class StatePlayer2 < Player
           next
         end
         max_eval=0
+        max_ind=0
         for i in 0...attackable_positions.size
           attack_field=invert(near_map(attackable_positions[i]))
           #attack_fieldには座標attackable_positionsに攻撃することによりしぶきが上がるマスが格納される
