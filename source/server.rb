@@ -1,10 +1,15 @@
 require 'json'
 require 'socket'
 
+# プレイヤーの船を表すクラスである．
 class Ship
+
+  # 船の種類と最大HPを定義している．
   MAX_HPS = {"w" => 3, "c" => 2, "s" => 1}
+  # 種類と座標とHPにアクセスできる．
   attr :type, :position, :hp
 
+  # 種類と場所を与えられる．HPは自動で決まる．
   def initialize(type, position)
     if !MAX_HPS.has_key?(type)
       raise ArgumentError, "invalid type supecified"
@@ -15,27 +20,39 @@ class Ship
     @hp = MAX_HPS[type]
   end
 
+  # 座標を変更する．
   def moved(to)
     @position = to
   end
 
+  # ダメージを受けてHPが減る．
   def damaged(d)
     @hp -= d
   end
 
+  # 座標が移動できる範囲(縦横)にあるか確認する．
   def reachable?(to)
     @position[0] == to[0] || @position[1] == to[1]
   end
 
+  # 座標が攻撃できる範囲(自分の座標及び周囲1マス)にあるか確認する．
   def attackable?(to)
     (to[0] - @position[0]).abs <= 1 && (to[1] - @position[1]).abs <= 1
   end
 end
 
+# プレイヤーを表すクラスである．艦を複数保持している．
 class Client
+
+  # フィールドの大きさを定義している．
   FIELD_SIZE = 5
+  # 艦隊(Shipオブジェクトの連想配列)にアクセスできる．
   attr :ships
 
+  #
+  # 艦種ごとに座標を与えられるので，Shipオブジェクトを作成し，連想配列に加える．
+  # 艦のtypeがkeyになる．
+  #
   def initialize(positions)
     @ships = {}
     positions.each do |type, position|
@@ -49,6 +66,7 @@ class Client
     end
   end
 
+  # 艦が座標に移動可能か確かめてから移動させる．相手プレイヤーに渡す情報を連想配列で返す．
   def move(type, to)
     ship = @ships[type]
 
@@ -61,6 +79,10 @@ class Client
     {"ship" => type, "distance" => distance}
   end
 
+  #
+  # 攻撃された時の処理．攻撃を受けた艦，あるいは周囲1マスにいる艦を調べ，状態を更新する．
+  # 相手プレイヤーに渡す情報を連想配列で返す．
+  #
   def attacked(to)
     if !Client.in_field?(to)
       return false
@@ -84,6 +106,7 @@ class Client
     info
   end
 
+  # 艦の座標とHPを返す．meで自分かどうかを判定し，違うならHPは教えない．
   def condition(me)
     cond = {}
     @ships.values.each do |ship|
@@ -95,12 +118,14 @@ class Client
     cond
   end
 
+  # 艦隊の攻撃可能な範囲を返す．
   def attackable?(to)
     Client.in_field?(to) && @ships.values.any? { |ship| ship.attackable?(to) }
   end
 
   private
 
+  # 与えられた座標にいる艦を返す．
   def overlap(position)
     @ships.values.each do |ship|
       if ship.position == position
@@ -110,6 +135,7 @@ class Client
     nil
   end
 
+  # 与えられた座標の周り1マスにいる艦を配列で返す．
   def near(to)
     near = []
     @ships.values.each do |ship|
@@ -120,25 +146,38 @@ class Client
     near
   end
 
+  # 与えられた座標がフィールドないかどうかを返す．
   def self.in_field?(position)
     position[0] < FIELD_SIZE && position[1] < FIELD_SIZE &&
         position[0] >= 0 && position[1] >= 0
   end
 end
 
+# 処理を行うクラスである．プレイヤー2人を保持している．
 class Server
+
+  #
+  # プレイヤーの配列である．以降，パラメータcで(c-1)番目のプレイヤーにアクセスする．
+  # 今プレイヤーが2人であるという前提なので，cと1-cで両プレイヤーにアクセスできる．
+  #
   attr :clients
 
+  # 両プレイヤーからJSONを受け取って初期配置を設定する．
   def initialize(json1, json2)
     @clients = Array.new(2)
     @clients[0] = Client.new(JSON.parse(json1))
     @clients[1] = Client.new(JSON.parse(json2))
   end
 
+  # 初期配置をJSONで返す．
   def initial_condition(c)
     [condition(c).to_json, condition(1-c).to_json]
   end
 
+  #
+  # 攻撃，あるいは移動の処理を行い，両プレイヤーに結果を通知するJSONを作る．
+  # 攻撃，移動可能であるかチェックする．
+  #
   def action(c, json)
     info = Array.new(2) { {} }
     active = @clients[c]
@@ -177,6 +216,7 @@ class Server
     [info[c].to_json, info[1-c].to_json]
   end
 
+  # 自分と相手の状態を連想配列で返す．
   def condition(c)
     {
         "condition" => {
@@ -187,9 +227,13 @@ class Server
   end
 end
 
+# 処理結果をターミナルにわかりやすく出力するためのモジュール．
 module Reporter
+
+  # フィールドの大きさを定義している．
   FIELD_SIZE = 5
 
+  # 結果を文章で通知する．現在未使用．
   def self.report_result(results, c)
     result1 = JSON.parse(results[0])
     result2 = JSON.parse(results[1])
@@ -226,6 +270,7 @@ module Reporter
     puts ""
   end
 
+  # 結果をアスキーアートで出力する．
   def self.report_field(result, c)
     results = [JSON.parse(result[0]), JSON.parse(result[1])]
 
@@ -275,16 +320,19 @@ module Reporter
 
   private
 
+  # マスの縦線を描く．
   def self.print_in_cell(s)
     print s + "|"
   end
 
+  # マスの横線を描く．
   def self.print_bar
     FIELD_SIZE.times do
       print "----"
     end
   end
 
+  # マスの横線をつなげて描く．
   def self.print_bars
     print "\n"
     print "----"
@@ -295,6 +343,7 @@ module Reporter
   end
 end
 
+# プレイヤーの行動をソケットから取得して処理し，結果を通知する．
 def one_action(active, passive, c, server)
   act = active.gets
   results = server.action(c, act)
@@ -305,6 +354,7 @@ def one_action(active, passive, c, server)
   !JSON.parse(results[0]).has_key?("outcome")
 end
 
+# TCPコネクション上で処理を行う．
 def main(port)
   tcp_server = TCPServer.open(port)
   sockets = []
