@@ -380,6 +380,9 @@ class StatePlayer2 < Player
   def update(json,status)
     super(json)
     data = JSON.parse(json)
+    if data.has_key?("outcome")
+      return
+    end
     if data.has_key?("result")
       result=data["result"]
       cond=data["condition"]
