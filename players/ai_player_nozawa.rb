@@ -113,7 +113,7 @@ class StatePlayer2 < Player
           end
         end
         @attacked_positions.push(attackable_positions[max_ind])
-        p "attack->#{attackable_positions[max_ind}"
+        p "attack->#{attackable_positions[max_ind]}"
         p @state
         return attack(attackable_positions[max_ind]).to_json
 
