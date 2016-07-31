@@ -121,6 +121,7 @@ class StatePlayer < Player
   def update(json,status)
     super(json)
     data = JSON.parse(json)
+    return if data.has_key?("outcome")
     if data.has_key?("result") # result は初回ターンのみ存在しないので確認
       result = data["result"]
       cond = data["condition"]
