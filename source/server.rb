@@ -401,9 +401,8 @@ def main(port)
   else
     sockets[winner].puts("you win")
     sockets[1-winner].puts("you lose")
+    puts "player" + (1+winner).to_s + " win"
   end
-
-  puts "player" + (1+winner).to_s + " win"
 
   sockets.each do |socket|
     socket.close

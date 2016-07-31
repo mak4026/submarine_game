@@ -478,6 +478,8 @@ def main(host, port)
         break
       elsif info == "you lose"
         break
+      elsif info == "even"
+        break
       else
         raise RuntimeError, "unknown information"
       end
