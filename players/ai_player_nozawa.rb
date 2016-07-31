@@ -128,6 +128,8 @@ class StatePlayer2 < Player
         #　一回の移動でなんとかなる場合
         #評価関数：（移動後に推測されるであろう存在可能性情報を考慮した各艦の存在可能マス数）^2 を艦ごとに足し合わせる
         max_eval=0
+        max_type=nil
+        max_to=[]
         skip_list=[] #移動によって一箇所に絞られてしまう艦リスト　二回移動の処理時は考慮しない
         @ships.each{|type,ship|
           position=ship.position
