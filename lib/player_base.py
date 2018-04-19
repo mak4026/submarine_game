@@ -58,9 +58,9 @@ class Player:
     # 通知された情報で艦の状態を更新する．
     def update(self, json_):
         cond = json.loads(json_)['condition']['me']
-        for ship_type in self.ships.keys():
+        for ship_type in list(self.ships):
             if ship_type not in cond:
-                del self.ships[ship_type]
+                self.ships.pop(ship_type)
             else:
                 self.ships[ship_type].hp = cond[ship_type]['hp']
                 self.ships[ship_type].position = cond[ship_type]['position']
@@ -85,7 +85,7 @@ class Player:
         }
 
     # 艦隊の攻撃可能な範囲を返す．
-    def can_attack(to):
+    def can_attack(self, to):
         return Player.in_field(to)\
             and any([ship.can_attack(to) for ship in self.ships.values()])
 
