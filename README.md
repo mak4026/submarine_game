@@ -1,5 +1,5 @@
 # submarine_game
-人やAIが対戦できる潜水艦ゲーム。
+人やAIが対戦できる潜水艦ゲーム。 
 クライアントプログラム作成用の詳しい仕様は[こちら](/doc/document.md)
 
 ## ルール
@@ -11,10 +11,10 @@
 4. 以上をいずれかのプレイヤーの艦が全て沈没するまで繰り返す。最後まで艦が残っていたプレイヤーが勝利する。
 
 ## ディレクトリ構成
-[/doc](/doc) ドキュメント
-[/source](/source) サーバのプログラム
-[/players](/players) AIのプログラム
-[/lib](/lib) AIで共通に使う処理のライブラリ
+[/doc](/doc) ドキュメント 
+[/source](/source) サーバのプログラム 
+[/players](/players) AIのプログラム 
+[/lib](/lib) AIで共通に使う処理のライブラリ 
 
 
 ## 実行
@@ -29,9 +29,9 @@ $ ruby source/server.rb 2000
 ```
 $ python3 players/random_player.py localhost 2000
 ```
-二つクライアントプログラムが繋がったらゲームが開始する。
-人間プレイ用に[manual_player.rb](/players/manual_player.rb)が用意してある。ターミナル上でキー入力をして行動を指示する。以下のような感じなのでターミナルを広めにして起動したほうが良い。
-マスには艦の種類のアルファベット1文字と、残りHPが表示される。自分あるいは相手が攻撃したマスには!がつく。その他相手の行動やHPなどの情報はテキストで出力される。
+二つクライアントプログラムが繋がったらゲームが開始する。 
+人間プレイ用に[manual_player.rb](/players/manual_player.rb)が用意してある。ターミナル上でキー入力をして行動を指示する。以下のような感じなのでターミナルを広めにして起動したほうが良い。 
+マスには艦の種類のアルファベット1文字と、残りHPが表示される。自分あるいは相手が攻撃したマスには!がつく。その他相手の行動やHPなどの情報はテキストで出力される。 
 ```
 $ ruby players/manual_player.rb localhost 2000
 you are connected. please send me initial state.
