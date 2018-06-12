@@ -1,6 +1,6 @@
 # submarine_game
 人やAIが対戦できる潜水艦ゲーム。  
-クライアントプログラム作成用の詳しい仕様は[こちら](/doc/document.md)  
+クライアントプログラム作成用の詳しい仕様は[こちら](/doc/document.md) 
 
 ## ルール
 1. 各プレイヤーはそれぞれ5x5のマス目上に戦艦、巡洋艦、潜水艦を配置する。位置は相手に伝えない。自分の艦同士を同じ場所に配置してはいけない。
@@ -14,11 +14,12 @@
 [/doc](/doc) ドキュメント  
 [/source](/source) サーバのプログラム  
 [/players](/players) AIのプログラム  
-[/lib](/lib) AIで共通に使う処理のライブラリ
+[/lib](/lib) AIで共通に使う処理のライブラリ  
 
 
 ## 実行
-ruby >= 2.0
+- サーバー, マニュアルプレイヤー: ruby >= 2.0
+- ランダムプレイヤー: python >= 3.5
 
 まずポート番号を指定してサーバを起動する。
 ```
@@ -26,11 +27,11 @@ $ ruby source/server.rb 2000
 ```
 サーバをつけたら、アドレスとポート番号を指定してクライアントを起動する。
 ```
-$ ruby players/random_player.rb localhost 2000
+$ python3 players/random_player.py localhost 2000
 ```
 二つクライアントプログラムが繋がったらゲームが開始する。  
-人間プレイ用に[manual_player.rb](/players/manual_player.rb)が用意してある。ターミナル上でキー入力をして行動を指示する。以下のような感じなのでターミナルを広めにして起動したほうが良い。  
-マスには艦の種類のアルファベット1文字と、残りHPが表示される。自分あるいは相手が攻撃したマスには!がつく。その他相手の行動やHPなどの情報はテキストで出力される。
+人間プレイ用に[manual_player.rb](/players/manual_player.rb)が用意してある。ターミナル上でキー入力をして行動を指示する。以下のような感じなのでターミナルを広めにして起動したほうが良い。   
+マスには艦の種類のアルファベット1文字と、残りHPが表示される。自分あるいは相手が攻撃したマスには!がつく。その他相手の行動やHPなどの情報はテキストで出力される。  
 ```
 $ ruby players/manual_player.rb localhost 2000
 you are connected. please send me initial state.
@@ -59,7 +60,7 @@ y = 2
 
 waiting
 enemy attacked [3, 4] near ["c"]
-enemy ships: w:3 c:2 s:1 
+enemy ships: w:3 c:2 s:1
    | 0 | 1 | 2 | 3 | 4 |
 ------------------------
  0 | w3|   |   |   |   |
@@ -82,7 +83,7 @@ a
 x = 3
 y = 3
 you attacked [3, 3] near ["w", "c"]
-enemy ships: w:3 c:2 s:1 
+enemy ships: w:3 c:2 s:1
    | 0 | 1 | 2 | 3 | 4 |
 ------------------------
  0 | w3|   |   |   |   |
